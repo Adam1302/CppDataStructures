@@ -56,6 +56,8 @@ class Graph {
         bool areNeighbours(const T& elem1, const T& elem2);
         int shortestPathLength(const T& from, const T& to);
         std::list<T> shortestPath(const T& from, const T& to);
+        void bfsSearch(const T& start);
+        void bfsSearch(T&& start);
         template <typename U>
         friend std::ostream& operator<<(std::ostream& out, const Graph<U>& g);
         ~Graph();
@@ -422,6 +424,76 @@ std::list<T> Graph<T>::shortestPath(const T& from, const T& to) {
 }
 
 template <typename T>
+void Graph<T>::bfsSearch(const T& start) {
+    if (!vertices.count(start)) {
+        std::cerr << "ERROR: " << start << " is not a key" << "\n";
+        return;
+    }
+
+    std::queue<Vertex*> Q;
+    std::unordered_map<Vertex*, Vertex*> parents;
+    std::unordered_map<Vertex*, int> level;
+
+    for (auto& [t, vertex] : vertices) {
+        parents[vertex] = nullptr;
+        level[vertex] = -1;
+    }
+
+    Q.push(vertices[start]);
+    level[vertices[start]] = 0;
+    parents[vertices[start]] = vertices[start];
+
+    while (!Q.empty()) {
+        Vertex* v = Q.front();
+        Q.pop();
+
+        for (auto& edge : v->edges) {
+            Vertex* w = vertices[edge.destinationVertex];
+            if (!parents[w]) {
+                Q.push(w);
+                parents[w] = v;
+                level[w] = level[v] + 1;
+            }
+        }
+    }
+}
+
+template <typename T>
+void Graph<T>::bfsSearch(T&& start) {
+    if (!vertices.count(start)) {
+        std::cerr << "ERROR: " << start << " is not a key" << "\n";
+        return;
+    }
+
+    std::queue<Vertex*> Q;
+    std::unordered_map<Vertex*, Vertex*> parents;
+    std::unordered_map<Vertex*, int> level;
+
+    for (auto& [t, vertex] : vertices) {
+        parents[vertex] = nullptr;
+        level[vertex] = -1;
+    }
+
+    Q.push(vertices[start]);
+    level[vertices[start]] = 0;
+    parents[vertices[start]] = vertices[start];
+
+    while (!Q.empty()) {
+        Vertex* v = Q.front();
+        Q.pop();
+
+        for (auto& edge : v->edges) {
+            Vertex* w = vertices[edge.destinationVertex];
+            if (!parents[w]) {
+                Q.push(w);
+                parents[w] = v;
+                level[w] = level[v] + 1;
+            }
+        }
+    }
+}
+
+template <typename T>
 std::ostream& operator<<(std::ostream& out, const Graph<T>& g) {
     out << "\n";
     for (const auto& [name, vertex] : g.vertices) {
@@ -537,6 +609,16 @@ void testGraph() {
     canadianMap5 = getGraph<std::string>();
     std::cout << canadianMap4 << std::endl;
     std::cout << canadianMap5 << std::endl;
+
+    std::cout << canadianMap << std::endl;
+
+    std::string city = "Toronto";
+    canadianMap.bfsSearch(city);
+    canadianMap.bfsSearch("Toronto");
+
+    std::cout << canadianMap5 << std::endl;
+    canadianMap5.bfsSearch(city);
+    canadianMap5.bfsSearch("Toronto");
 }
 
 int main() {
