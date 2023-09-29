@@ -8,9 +8,10 @@
 #endif
 
 #include <iostream>
-#include <queue>
-#include <unordered_map>
 #include <list>
+#include <queue>
+#include <set>
+#include <unordered_map>
 
 template<typename T>
 class Graph {
@@ -58,6 +59,8 @@ class Graph {
         std::list<T> shortestPath(const T& from, const T& to);
         void bfsSearch(const T& start);
         void bfsSearch(T&& start);
+        void dfsSearch();
+        void explore(Vertex* v, std::set<Vertex*>& visited);
         template <typename U>
         friend std::ostream& operator<<(std::ostream& out, const Graph<U>& g);
         ~Graph();
@@ -494,6 +497,27 @@ void Graph<T>::bfsSearch(T&& start) {
 }
 
 template <typename T>
+void Graph<T>::dfsSearch() {
+    std::set<Vertex*> visited;
+    for (auto& [elem, vertex] : vertices) {
+        if (!visited.count(vertex)) {
+            explore(vertex, visited);
+        }
+    }
+}
+
+template <typename T>
+void Graph<T>::explore(Vertex* v, std::set<Vertex*>& visited) {
+    visited.insert(v);
+    for (auto& edge : v->edges) {
+        Vertex* w = vertices[edge.destinationVertex];
+        if (!visited.count(w)) {
+            explore(w, visited);
+        }
+    }
+}
+
+template <typename T>
 std::ostream& operator<<(std::ostream& out, const Graph<T>& g) {
     out << "\n";
     for (const auto& [name, vertex] : g.vertices) {
@@ -619,6 +643,8 @@ void testGraph() {
     std::cout << canadianMap5 << std::endl;
     canadianMap5.bfsSearch(city);
     canadianMap5.bfsSearch("Toronto");
+
+    canadianMap5.dfsSearch();
 }
 
 int main() {
